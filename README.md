@@ -45,6 +45,17 @@ See the [Dev Guide](DEV.md).
 
 The first proof-of-concept came from Johannes Berger [here](https://github.com/johannesber/typst-ppt-addin) in January 2026. I forked the repo and have since been building on it, replacing the custom engine by the awesome [`typst.ts`](https://github.com/Myriad-Dreamin/typst.ts) by Myriad-Dreamin, migrating to TypeScript, improving on code quality, as well as polishing and adding a lot more functionality. If you have any feature requests or want to report a bug, head over to the [issues](https://github.com/Splines/pptypst/issues).
 
+### Fonts
+
+This fork bundles the following fonts (in [`web/public/`](./web/public/)), loaded into the Typst compiler in [`web/src/typst.ts`](./web/src/typst.ts):
+
+| Font | File | Role | Source | License |
+| --- | --- | --- | --- | --- |
+| New Computer Modern Sans Math | `NewCMSansMath-Regular.otf` | Math (OpenType MATH table) and Latin body text | [CTAN `newcomputermodern`](https://ctan.org/pkg/newcomputermodern) | GUST Font License / GFL — [`NewCM-License.txt`](./web/public/NewCM-License.txt) |
+| Noto Sans JP | `NotoSansJP-Regular.ttf`, `NotoSansJP-Bold.ttf` | Japanese / CJK body text fallback | [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+JP) | SIL OFL 1.1 — [`NotoSansJP-OFL.txt`](./web/public/NotoSansJP-OFL.txt) |
+
+The default body font is `Noto Sans JP` (covers both Latin and Japanese) and math equations use `New Computer Modern Sans Math`, so equations and Japanese text render without per-document `#set text(font: ...)`. Override the body font per document via the preamble, e.g. `#set text(font: "New Computer Modern Sans Math")`. Family names are the names Typst reports (`typst fonts --font-path web/public`), not the file names.
+
 ### License
 
-This project is licensed under the very permissive MIT-license. See the [License file](./LICENSE). However, notice that the branding (including the logo and the name of this project) are exempt from the license.
+This project is licensed under the very permissive MIT-license. See the [License file](./LICENSE). However, notice that the branding (including the logo and the name of this project) are exempt from the license. Bundled fonts are distributed under their own licenses (see the Fonts section above).

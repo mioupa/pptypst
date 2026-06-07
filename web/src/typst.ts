@@ -17,8 +17,14 @@ import { NodeFetchPackageRegistry } from "@myriaddreamin/typst.ts/dist/esm/fs/pa
 import { MemoryAccessModel } from "@myriaddreamin/typst.ts/dist/esm/fs/memory.mjs";
 import { cachedFontInitOptions } from "./registry/font-cache";
 
+// New Computer Modern Sans Math (OpenType MATH table; also used for Latin body text).
 // @ts-expect-error ?url import
-import mathFontUrl from "/math-font.ttf?url";
+import sansMathFontUrl from "/NewCMSansMath-Regular.otf?url";
+// Noto Sans JP for Japanese (and CJK) body text fallback.
+// @ts-expect-error ?url import
+import notoSansJpRegularUrl from "/NotoSansJP-Regular.ttf?url";
+// @ts-expect-error ?url import
+import notoSansJpBoldUrl from "/NotoSansJP-Bold.ttf?url";
 
 // @ts-expect-error WASM module import
 import typstCompilerWasm from "@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm?url";
@@ -53,7 +59,7 @@ async function initCompiler() {
     beforeBuild: [
       disableDefaultFontAssets(),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      loadFonts([mathFontUrl]),
+      loadFonts([sansMathFontUrl, notoSansJpRegularUrl, notoSansJpBoldUrl]),
       ...cachedFontInitOptions().beforeBuild,
       withAccessModel(accessModel),
       withPackageRegistry(
@@ -95,7 +101,9 @@ function buildRawTypstString(source: TypstSource, fontSize: string, mathMode: bo
   const separator = source.preamble && body && !source.preamble.endsWith("\n") ? "\n" : "";
   const compiledUserSource = `${source.preamble}${separator}${body}`;
   return "#set page(margin: 3pt, background: none, width: auto, fill: none, height: auto)"
-    + `\n#set text(size: ${fontSize}pt)\n${compiledUserSource}`;
+    + `\n#set text(size: ${fontSize}pt, font: "Noto Sans JP")`
+    + "\n#show math.equation: set text(font: \"New Computer Modern Sans Math\")"
+    + `\n${compiledUserSource}`;
 }
 
 export interface CompilationResult {

@@ -10,7 +10,7 @@
     "test": "npx playwright test",
     "validate": "office-addin-manifest validate manifest.xml",
     "validate-prod": "office-addin-manifest validate -p manifest.prod.xml",
-    "generate-prod-manifest": "sed 's|https://localhost:3155/pptypst/|https://splines.github.io/pptypst/|g' manifest.xml > manifest.prod.xml"
+    "generate-prod-manifest": "sed -e 's|https://localhost:3155/pptypst/|https://mioupa.github.io/pptypst/|g' -e 's|https://splines.github.io/pptypst/|https://mioupa.github.io/pptypst/|g' manifest.xml > manifest.prod.xml"
   },
   "devDependencies": {
     "@eslint/css": "^1.1",

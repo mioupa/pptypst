@@ -4,6 +4,7 @@ web/certs/*
 build/
 tmp/
 manifest.prod.xml
+_things
 
 # Playwright
 /test-results/
