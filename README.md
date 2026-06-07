@@ -54,7 +54,7 @@ This fork bundles the following fonts (in [`web/public/`](./web/public/)), loade
 | New Computer Modern Sans Math | `NewCMSansMath-Regular.otf` | Math (OpenType MATH table) and Latin body text | [CTAN `newcomputermodern`](https://ctan.org/pkg/newcomputermodern) | GUST Font License / GFL — [`NewCM-License.txt`](./web/public/NewCM-License.txt) |
 | Noto Sans JP | `NotoSansJP-Regular.ttf`, `NotoSansJP-Bold.ttf` | Japanese / CJK body text fallback | [Google Fonts](https://fonts.google.com/noto/specimen/Noto+Sans+JP) | SIL OFL 1.1 — [`NotoSansJP-OFL.txt`](./web/public/NotoSansJP-OFL.txt) |
 
-The default body font is `Noto Sans JP` (covers both Latin and Japanese) and math equations use `New Computer Modern Sans Math`, so equations and Japanese text render without per-document `#set text(font: ...)`. Override the body font per document via the preamble, e.g. `#set text(font: "New Computer Modern Sans Math")`. Family names are the names Typst reports (`typst fonts --font-path web/public`), not the file names.
+The default body font is `Noto Sans JP` (covers both Latin and Japanese) and math equations use `New Computer Modern Sans Math`, so equations and Japanese text render without per-document `#set text(font: ...)`. Override the body font per document via the preamble, e.g. `#set text(font: "New Computer Modern Sans Math")`.
 
 ### License
 
