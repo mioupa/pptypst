@@ -37,6 +37,8 @@ mkcert -cert-file web/certs/localhost.crt -key-file web/certs/localhost.key loca
 
 If you're on WSL, follow [these steps](https://github.com/microsoft/WSL/issues/3161#issuecomment-451863149). For more background, see [this guide](https://240dc.com/wsl2-add-a-local-ssl-certificate-with-mkcert/), but rather execute the commands as shown in the first link. It's a bit tedious, but you will get there.
 
+Playwright tests do not need those certificates. The local and CI test setup starts Vite over plain `http` because the Office APIs are mocked in that scenario.
+
 ### Debug
 
 In PowerPoint, press `Ctrl+Shift+I` when the focus is on the Add-in task pane. This will open the dev console of the embedded web view where you can see network requests, the console output etc.
@@ -45,6 +47,19 @@ In PowerPoint, press `Ctrl+Shift+I` when the focus is on the Add-in task pane. T
 
 ```sh
 npm run validate-manifest
+```
+
+## Playwright Tests
+
+```sh
+# Install necessary dependencies first
+npx playwright install-deps chromium
+npx playwright install chromium
+
+# Run tests (or even easier, just use the Playwright VSCode extension)
+# Note that a dedicated test webserver will automatically be started for the tests,
+# see the playwright.config.ts for details.
+npm run test
 ```
 
 ## Test production-like environment
@@ -58,3 +73,7 @@ If you have used another manifest beforehand, clear the office cache as describe
 ```
 
 The production manifest has URLs configured to point to the site hosted on GitHub Pages. This way, you can see if everything works fine. All we ship to the PowerPoint Marketplace is the Manifest file in the end.
+
+## Useful links
+
+- [PowerPoint JS API](https://learn.microsoft.com/en-us/javascript/api/powerpoint) (Preview) & [v10](https://learn.microsoft.com/en-us/javascript/api/powerpoint?view=powerpoint-js-1.10)
