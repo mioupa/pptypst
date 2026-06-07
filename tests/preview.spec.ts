@@ -11,7 +11,8 @@ test("previews Typst math expressions", async ({ powerPointPage, typstMock }) =>
     {
       path: "/main.typ",
       source: "#set page(margin: 3pt, background: none, width: auto, fill: none, height: auto)\n"
-        + "#set text(size: 28pt)\n"
+        + "#set text(size: 28pt, font: \"Noto Sans JP\")\n"
+        + "#show math.equation: set text(font: \"New Computer Modern Sans Math\")\n"
         + "$\n"
         + "integral_a^b f(x) dif x\n"
         + "$",
