@@ -1,14 +1,20 @@
 /**
- * UI wiring for the "Custom fonts" panel: uploading font files, listing the
- * loaded fonts, and removing them. Adding or removing a font re-initializes
- * the Typst compiler and refreshes the preview.
+ * UI wiring for the "Custom fonts" panel: adding font files (by upload or URL),
+ * listing the loaded fonts, and removing them. Adding or removing a font
+ * updates the Typst compiler's fonts and refreshes the preview.
  */
 
 import { DOM_IDS, STORAGE_KEYS } from "./constants.js";
-import { getDetailsElement, getHTMLElement, getInputElement } from "./utils/dom.js";
+import {
+  getButtonElement,
+  getDetailsElement,
+  getHTMLElement,
+  getInputElement,
+} from "./utils/dom.js";
 import { getStoredValue, storeValue } from "./utils/storage.js";
 import {
   addFontFromFile,
+  addFontFromUrl,
   getUserFonts,
   removeFont,
   type UserFont,
@@ -33,7 +39,47 @@ export function setupFontsPanel() {
     void handleFilesSelected(input);
   });
 
+  const urlInput = getInputElement(DOM_IDS.FONTS_URL_INPUT);
+  const urlButton = getButtonElement(DOM_IDS.FONTS_URL_BTN);
+  urlButton.addEventListener("click", () => {
+    void handleUrlSubmit(urlInput);
+  });
+  urlInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      void handleUrlSubmit(urlInput);
+    }
+  });
+
   renderFontsList();
+}
+
+/**
+ * Fetches a font from the pasted URL, adds it, reloads the compiler and
+ * refreshes the preview.
+ */
+async function handleUrlSubmit(urlInput: HTMLInputElement) {
+  const url = urlInput.value.trim();
+  if (!url) {
+    return;
+  }
+
+  setStatus("Loading font from URL…");
+  let key: string;
+  try {
+    const font = await addFontFromUrl(url);
+    key = font.key;
+  } catch (error) {
+    console.error("Failed to add font from URL:", error);
+    setStatus("Could not load a font from that URL (check the link and CORS).", true);
+    return;
+  }
+
+  urlInput.value = "";
+  await reloadCompilerFonts();
+  renderFontsList();
+  await updatePreview();
+  setStatus(`Added: ${key}`);
 }
 
 /**

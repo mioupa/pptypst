@@ -8,6 +8,7 @@
 
 import { debug } from "../utils/logger.js";
 import { readFontNames } from "./font-name.js";
+import { cachedFetch } from "./font-cache.js";
 
 /**
  * A custom font provided by the user. One entry corresponds to one font face
@@ -165,30 +166,74 @@ async function unpersistFont(key: string): Promise<void> {
 }
 
 /**
- * Adds a font from an uploaded file: reads its bytes, detects the family name,
- * stores it in memory and persists it.
+ * Adds a font from raw bytes: detects the family/subfamily, stores it in memory
+ * and persists it. Shared by the file-upload and URL paths.
  *
- * @param file The font file selected by the user.
+ * @param data The raw font bytes.
+ * @param sourceLabel A human-readable label (file name or URL) shown in the UI.
  * @returns the added font (caller is responsible for reloading the compiler).
  */
-export async function addFontFromFile(file: File): Promise<UserFont> {
-  const data = new Uint8Array(await file.arrayBuffer());
+async function addFontFromBytes(data: Uint8Array, sourceLabel: string): Promise<UserFont> {
   const names = readFontNames(data);
-  const family = names.family ?? stripExtension(file.name);
+  const family = names.family ?? stripExtension(sourceLabel);
   const subfamily = names.subfamily ?? "";
 
   // Key per face so multiple weights/styles of the same family coexist
   // (e.g. "Noto Sans JP" Regular and Bold). Re-adding the same face replaces it.
   const key = subfamily ? `${family} ${subfamily}` : family;
 
-  const font: UserFont = { key, family, subfamily, fileName: file.name, data };
+  const font: UserFont = { key, family, subfamily, fileName: sourceLabel, data };
 
   fonts = fonts.filter(existing => existing.key !== key);
   fonts.push(font);
 
   await persistFont(font);
-  debug(`Added custom font "${key}" from ${file.name}`);
+  debug(`Added custom font "${key}" from ${sourceLabel}`);
   return font;
+}
+
+/**
+ * Adds a font from an uploaded file.
+ *
+ * @param file The font file selected by the user.
+ * @returns the added font (caller is responsible for reloading the compiler).
+ */
+export async function addFontFromFile(file: File): Promise<UserFont> {
+  const data = new Uint8Array(await file.arrayBuffer());
+  return addFontFromBytes(data, file.name);
+}
+
+/**
+ * Adds a font by fetching a font file from a URL.
+ *
+ * The URL must point to an actual font file (e.g. a `.ttf`/`.otf`), not a CSS
+ * `@font-face` stylesheet, and the host must allow cross-origin requests
+ * (CORS). The fetched bytes are cached like the default assets.
+ *
+ * @param url Direct URL to a font file.
+ * @returns the added font (caller is responsible for reloading the compiler).
+ */
+export async function addFontFromUrl(url: string): Promise<UserFont> {
+  const response = await cachedFetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch font (HTTP ${response.status.toString()})`);
+  }
+  const data = new Uint8Array(await response.arrayBuffer());
+  return addFontFromBytes(data, fileNameFromUrl(url));
+}
+
+/**
+ * Derives a display label from a font URL: the last path segment, or the URL
+ * itself if there is none.
+ */
+function fileNameFromUrl(url: string): string {
+  try {
+    const { pathname } = new URL(url);
+    const last = pathname.split("/").filter(Boolean).pop();
+    return last ? decodeURIComponent(last) : url;
+  } catch {
+    return url;
+  }
 }
 
 /**

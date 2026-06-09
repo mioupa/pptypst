@@ -88,13 +88,23 @@
     </details>
 
     <details id="fontsDetails" class="fonts-panel">
-      <summary class="fonts-summary" title="Upload font files to use them in your Typst code via #set text(font: ...)">
+      <summary class="fonts-summary" title="Add font files (by upload or URL) to use them in your Typst code via #set text(font: ...)">
         Custom fonts
       </summary>
       <label class="fonts-upload">
         <span class="fonts-upload-text">＋ Add font file</span>
         <input id="fontsInput" type="file" class="fonts-input" accept=".ttf,.otf,.ttc" multiple>
       </label>
+      <div class="fonts-url-row">
+        <input
+          id="fontsUrlInput"
+          type="url"
+          class="fonts-url-input"
+          placeholder="…or paste a direct font file URL (.ttf/.otf)"
+          spellcheck="false"
+        >
+        <button id="fontsUrlBtn" type="button" class="fonts-url-btn">Add</button>
+      </div>
       <ul id="fontsList" class="fonts-list"></ul>
     </details>
 

@@ -63,6 +63,8 @@ export const DOM_IDS = {
   ABOUT_MODAL_CLOSE: "aboutModalClose",
   FONTS_DETAILS: "fontsDetails",
   FONTS_INPUT: "fontsInput",
+  FONTS_URL_INPUT: "fontsUrlInput",
+  FONTS_URL_BTN: "fontsUrlBtn",
   FONTS_LIST: "fontsList",
 } as const;
 

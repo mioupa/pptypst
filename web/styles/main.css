@@ -426,6 +426,41 @@ button {
     display: none;
 }
 
+.fonts-url-row {
+    display: flex;
+    gap: 6px;
+    margin: 0 10px 8px;
+}
+
+.fonts-url-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+.fonts-url-btn {
+    flex: 0 0 auto;
+    width: auto;
+    margin-top: 0;
+    border: none;
+    border-radius: 4px;
+    background: var(--button-bg);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+.fonts-url-btn:hover {
+    background: var(--button-hover);
+}
+
 .fonts-list {
     list-style: none;
     margin: 0 10px 10px;
