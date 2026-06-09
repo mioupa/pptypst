@@ -25,6 +25,7 @@ import typstCompilerWasm from "@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts
 // @ts-expect-error WASM module import
 import typstRendererWasm from "@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm?url";
 import { registryRequest } from "./registry/registry";
+import { getUserFontData } from "./registry/user-fonts.js";
 import { TypstSource } from "./payload.js";
 
 let compiler: typstWeb.TypstCompiler;
@@ -36,6 +37,15 @@ let renderer: typstWeb.TypstRenderer;
 export async function initTypst() {
   await initCompiler();
   await initRenderer();
+}
+
+/**
+ * Re-initializes the compiler so the current set of user fonts (see
+ * {@link getUserFontData}) takes effect. Call this after adding or removing a
+ * custom font. The renderer is unaffected and is left untouched.
+ */
+export async function reloadCompilerFonts() {
+  await initCompiler();
 }
 
 /**
@@ -53,7 +63,7 @@ async function initCompiler() {
     beforeBuild: [
       disableDefaultFontAssets(),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      loadFonts([mathFontUrl]),
+      loadFonts([mathFontUrl, ...getUserFontData()]),
       ...cachedFontInitOptions().beforeBuild,
       withAccessModel(accessModel),
       withPackageRegistry(
