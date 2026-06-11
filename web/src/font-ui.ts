@@ -49,33 +49,36 @@ async function handleFilesSelected(input: HTMLInputElement) {
   input.value = "";
 
   setStatus(`Loading ${files.length.toString()} font(s)…`);
-  const added: string[] = [];
   try {
+    const added: string[] = [];
     for (const file of files) {
       const font = await addFontFromFile(file);
       added.push(font.key);
     }
+    await reloadCompilerFonts();
+    renderFontsList();
+    await updatePreview();
+    setStatus(`Added: ${added.join(", ")}`);
   } catch (error) {
     console.error("Failed to add custom font:", error);
-    setStatus("Could not read that font file.", true);
-    return;
+    setStatus("Could not add that font.", true);
   }
-
-  await reloadCompilerFonts();
-  renderFontsList();
-  await updatePreview();
-  setStatus(`Added: ${added.join(", ")}`);
 }
 
 /**
  * Removes a font, reloads the compiler and refreshes the preview.
  */
 async function handleRemove(key: string) {
-  await removeFont(key);
-  await reloadCompilerFonts();
-  renderFontsList();
-  await updatePreview();
-  setStatus("");
+  try {
+    await removeFont(key);
+    await reloadCompilerFonts();
+    renderFontsList();
+    await updatePreview();
+    setStatus("");
+  } catch (error) {
+    console.error("Failed to remove custom font:", error);
+    setStatus("Could not remove that font.", true);
+  }
 }
 
 /**
