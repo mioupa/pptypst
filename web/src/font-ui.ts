@@ -49,19 +49,38 @@ async function handleFilesSelected(input: HTMLInputElement) {
   input.value = "";
 
   setStatus(`Loading ${files.length.toString()} font(s)…`);
-  try {
-    const added: string[] = [];
-    for (const file of files) {
+
+  // Add each file independently so one bad file doesn't discard the others.
+  const added: string[] = [];
+  const failed: string[] = [];
+  for (const file of files) {
+    try {
       const font = await addFontFromFile(file);
       added.push(font.key);
+    } catch (error) {
+      console.error(`Failed to add custom font "${file.name}":`, error);
+      failed.push(file.name);
     }
-    await reloadCompilerFonts();
-    renderFontsList();
-    await updatePreview();
+  }
+
+  // Always apply whatever was added successfully, keeping registry/compiler/UI
+  // in sync even if some files failed.
+  if (added.length > 0) {
+    try {
+      await reloadCompilerFonts();
+      renderFontsList();
+      await updatePreview();
+    } catch (error) {
+      console.error("Failed to apply custom fonts:", error);
+      setStatus("Added fonts, but failed to apply them.", true);
+      return;
+    }
+  }
+
+  if (failed.length > 0) {
+    setStatus(`Could not add: ${failed.join(", ")}`, true);
+  } else {
     setStatus(`Added: ${added.join(", ")}`);
-  } catch (error) {
-    console.error("Failed to add custom font:", error);
-    setStatus("Could not add that font.", true);
   }
 }
 

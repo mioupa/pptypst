@@ -105,13 +105,13 @@ interface StoredFont {
  * still works, just without persisted fonts.
  */
 export async function loadStoredFonts(): Promise<void> {
+  let db: IDBDatabase | undefined;
   try {
-    const db = await openDb();
+    db = await openDb();
     const request = db.transaction(STORE_NAME, "readonly")
       .objectStore(STORE_NAME)
       .getAll() as IDBRequest<StoredFont[]>;
     const stored = await awaitRequest(request, "read");
-    db.close();
 
     fonts = stored.map(font => ({
       key: font.key,
@@ -124,6 +124,8 @@ export async function loadStoredFonts(): Promise<void> {
   } catch (error) {
     console.warn("Could not load persisted custom fonts:", error);
     fonts = [];
+  } finally {
+    db?.close();
   }
 }
 
@@ -131,8 +133,9 @@ export async function loadStoredFonts(): Promise<void> {
  * Persists a single font to IndexedDB.
  */
 async function persistFont(font: UserFont): Promise<void> {
+  let db: IDBDatabase | undefined;
   try {
-    const db = await openDb();
+    db = await openDb();
     const tx = db.transaction(STORE_NAME, "readwrite");
     tx.objectStore(STORE_NAME).put({
       key: font.key,
@@ -143,9 +146,10 @@ async function persistFont(font: UserFont): Promise<void> {
       data: font.data.slice().buffer,
     } satisfies StoredFont);
     await awaitTransaction(tx, "write");
-    db.close();
   } catch (error) {
     console.warn("Could not persist custom font:", error);
+  } finally {
+    db?.close();
   }
 }
 
@@ -153,14 +157,16 @@ async function persistFont(font: UserFont): Promise<void> {
  * Removes a single font from IndexedDB.
  */
 async function unpersistFont(key: string): Promise<void> {
+  let db: IDBDatabase | undefined;
   try {
-    const db = await openDb();
+    db = await openDb();
     const tx = db.transaction(STORE_NAME, "readwrite");
     tx.objectStore(STORE_NAME).delete(key);
     await awaitTransaction(tx, "delete");
-    db.close();
   } catch (error) {
     console.warn("Could not remove persisted custom font:", error);
+  } finally {
+    db?.close();
   }
 }
 

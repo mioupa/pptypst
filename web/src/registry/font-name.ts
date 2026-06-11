@@ -167,8 +167,11 @@ function preferEnglish(current: NameCandidate | null, next: NameCandidate): Name
 }
 
 /**
- * Whether a name record is in English. Windows uses language ID 0x0409,
- * Macintosh uses 0, and Unicode (platform 0) records have no language.
+ * Whether a name record is explicitly English. Windows uses language ID
+ * 0x0409 and Macintosh uses 0. Unicode/other platforms carry no reliable
+ * language marker, so they are not treated as English — that way an explicit
+ * English record is preferred over an early platform-0 record of unknown
+ * language (while still falling back to the first record when none is English).
  */
 function isEnglish(platformId: number, languageId: number): boolean {
   if (platformId === 3) {
@@ -177,7 +180,7 @@ function isEnglish(platformId: number, languageId: number): boolean {
   if (platformId === 1) {
     return languageId === 0;
   }
-  return true;
+  return false;
 }
 
 /**
