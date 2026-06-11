@@ -200,4 +200,56 @@ export class PowerPointPage {
   async expectPreviewVisible() {
     await expect(this.page.locator("#previewContent svg")).toBeVisible();
   }
+
+  /** Reloads the task pane and waits for the add-in to finish initializing. */
+  async reload() {
+    await this.page.reload();
+    await expect(this.page.locator("#insertBtn")).toContainText(/Insert|Update/);
+  }
+
+  /** Opens the collapsible Custom fonts panel if it is currently closed. */
+  async openFontsPanel() {
+    const isOpen = await this.page.locator("#fontsDetails").evaluate(
+      element => (element as HTMLDetailsElement).open,
+    );
+    if (!isOpen) {
+      await this.page.locator("#fontsDetails summary").click();
+    }
+  }
+
+  /** Uploads one or more font files into the Custom fonts panel. */
+  async addFontFiles(files: { name: string; buffer: Buffer }[]) {
+    await this.page.locator("#fontsInput").setInputFiles(
+      files.map(file => ({ name: file.name, mimeType: "font/ttf", buffer: file.buffer })),
+    );
+  }
+
+  /** Removes the first listed custom font via its remove button. */
+  async removeFirstFont() {
+    await this.page.locator(".fonts-item-remove").first().click();
+  }
+
+  /** Locator for the listed custom-font rows. */
+  fontItems() {
+    return this.page.locator(".fonts-item");
+  }
+
+  /** Asserts how many listed fonts report the given family name. */
+  async expectFontFamilyCount(family: string, count: number) {
+    await expect(
+      this.page.locator(".fonts-item-family", { hasText: family }),
+    ).toHaveCount(count);
+  }
+
+  /** Asserts that exactly one listed font shows the given style badge. */
+  async expectFontStyleListed(style: string) {
+    await expect(
+      this.page.locator(".fonts-item-style", { hasText: style }),
+    ).toHaveCount(1);
+  }
+
+  /** Asserts that no custom fonts are listed. */
+  async expectNoCustomFonts() {
+    await expect(this.page.locator(".fonts-empty")).toBeVisible();
+  }
 }
